@@ -2,30 +2,63 @@ import { BUILDINGS } from "../constants/buildings";
 
 export function tick(prev) {
   const newResources = { ...prev.resources };
+  // Passive plankton trickle (1 every 10 seconds = 0.1 per tick)
+  newResources.plankton = (newResources.plankton ?? 0) + 0.1;
+  const newRates = { plankton: 0.0, krill: 0, smallFish: 0 };
+  const newProgress = { ...prev.resourceProgress };
 
   // Production from buildings
   Object.entries(prev.buildings).forEach(([key, count]) => {
     if (count === 0) return;
     const prod = BUILDINGS[key].production;
+
+    // Calculate how many of this building can actually produce
+    let affordableCount = count;
+    Object.entries(prod).forEach(([resource, amount]) => {
+      if (amount < 0) {
+        const available = newResources[resource] ?? 0;
+        const maxCanRun = Math.floor(available / Math.abs(amount));
+        affordableCount = Math.min(affordableCount, maxCanRun);
+      }
+    });
+
+    if (affordableCount === 0) return;
+
     Object.entries(prod).forEach(([resource, amount]) => {
       let finalAmount = amount;
 
       // Apply tidal surge boost to plankton blooms
-      if (key === "planktonBloom" && resource === "plankton" && prev.upgrades.purchased.includes("tidalSurge")) {
+      if (key === "planktonBloom" && resource === "plankton" && prev.kraken.tidalSurgeSeconds > 0) {
         finalAmount *= 2;
       }
 
-      newResources[resource] = (newResources[resource] ?? 0) + finalAmount * count;
+      newResources[resource] = (newResources[resource] ?? 0) + finalAmount * affordableCount;
+
+      // Track progress toward next whole number
+      if (finalAmount > 0 && resource in newProgress) {
+        newProgress[resource] = (newProgress[resource] + finalAmount * affordableCount) % 1;
+      }
+
+      // Track positive production rates
+      if (finalAmount > 0 && resource in newRates) {
+        newRates[resource] += finalAmount * affordableCount;
+      }
     });
   });
 
-  // Hunger decay
+  // Prevent resources from going below 0
+  Object.keys(newResources).forEach((r) => {
+    if (r !== "voidPearls") newResources[r] = Math.max(0, newResources[r]);
+  });
+
+  // Hunger decay scales with level
   const newKraken = {
     ...prev.kraken,
-    hunger: Math.max(0, prev.kraken.hunger - 0.5),
+    hunger: Math.max(0, prev.kraken.hunger - (0.1 + (prev.kraken.level - 1) * 0.05)),
+    tidalSurgeSeconds: Math.max(0, prev.kraken.tidalSurgeSeconds - 1),
   };
 
-  return { ...prev, resources: newResources, kraken: newKraken };
+  return { ...prev, resources: newResources, kraken: newKraken, productionRates: newRates, resourceProgress: newProgress };
 }
 
 export function buyBuilding(prev, key) {
@@ -94,7 +127,7 @@ export function canAffordResources(resources, cost) {
 }
 
 export function tickPearls(prev) {
-  const rate = prev.upgrades.purchased.includes("pearlDiver") ? 2 : 1;
+  const rate = prev.upgrades.purchased.includes("pearlDiver") ? 1.5 : 1;
   return {
     ...prev,
     resources: {
@@ -107,7 +140,7 @@ export function tickPearls(prev) {
 export function feedKrakenFish(prev) {
   if (prev.resources.smallFish < 1) return prev;
 
-  const hungerGain = 25;
+  const hungerGain = 15;
   const newHunger = Math.min(prev.kraken.hunger + hungerGain, prev.kraken.maxHunger);
   const didLevelUp = newHunger >= prev.kraken.maxHunger;
 

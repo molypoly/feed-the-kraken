@@ -7,10 +7,27 @@ export function canAffordUpgrade(voidPearls, upgradeId) {
 }
 
 export function buyUpgrade(prev, upgradeId) {
-  if (prev.upgrades.purchased.includes(upgradeId)) return prev;
   const upgrade = findUpgrade(upgradeId);
   if (!upgrade) return prev;
   if (prev.resources.voidPearls < upgrade.cost) return prev;
+
+  // Consumable upgrades add time instead of going into purchased array
+  if (upgrade.consumable) {
+    return {
+      ...prev,
+      resources: {
+        ...prev.resources,
+        voidPearls: prev.resources.voidPearls - upgrade.cost,
+      },
+      kraken: {
+        ...prev.kraken,
+        tidalSurgeSeconds: prev.kraken.tidalSurgeSeconds + 15,
+      },
+    };
+  }
+
+  // Permanent upgrades
+  if (prev.upgrades.purchased.includes(upgradeId)) return prev;
 
   return {
     ...prev,

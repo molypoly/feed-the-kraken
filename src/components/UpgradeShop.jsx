@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { UPGRADES } from "../constants/upgrades";
 
-export default function UpgradeShop({ voidPearls, purchased, onBuy }) {
+export default function UpgradeShop({ voidPearls, purchased, onBuy, tidalSurgeSeconds }) {
   const [activeTab, setActiveTab] = useState("baits");
 
   const currentUpgrades = UPGRADES[activeTab];
@@ -39,6 +39,8 @@ export default function UpgradeShop({ voidPearls, purchased, onBuy }) {
       {Object.values(currentUpgrades).map((upgrade) => {
         const isPurchased = purchased.includes(upgrade.id);
         const canAfford = voidPearls >= upgrade.cost;
+        const isActive = upgrade.consumable && tidalSurgeSeconds > 0;
+
         return (
           <div key={upgrade.id} className="mb-3 border border-slate-700 rounded-lg p-2">
             <div className="flex justify-between text-sm mb-1">
@@ -46,6 +48,14 @@ export default function UpgradeShop({ voidPearls, purchased, onBuy }) {
               <span className="text-xs text-yellow-400">💎 {upgrade.cost}</span>
             </div>
             <p className="text-xs text-slate-500 mb-2">{upgrade.description}</p>
+
+            {/* Show countdown for consumable upgrades */}
+            {upgrade.consumable && isActive && (
+              <p className="text-xs text-cyan-400 mb-1 animate-pulse">
+                ⚡ Active: {tidalSurgeSeconds}s remaining
+              </p>
+            )}
+
             <button
               onClick={() => onBuy(upgrade.id)}
               disabled={isPurchased || !canAfford}
