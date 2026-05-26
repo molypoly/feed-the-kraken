@@ -11,4 +11,11 @@ export const BUILDINGS = {
     baseCost: { plankton: 50 },
     production: { krill: 1, plankton: -2 },
   },
+  anglerTrap: {
+    name: "Angler Trap",
+    description: "Lures small fish using bioluminescent light. Consumes krill.",
+    baseCost: { krill: 20 },
+    production: { smallFish: 1, krill: -3 },
+    requiresUpgrade: "glowingLure",
+  },
 };

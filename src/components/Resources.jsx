@@ -10,6 +10,10 @@ export default function Resources({ resources }) {
         <span>🦐 Krill</span>
         <span>{Math.floor(resources.krill)}</span>
       </div>
+      <div className="flex justify-between text-sm mb-2">
+        <span>🐟 Small Fish</span>
+        <span>{Math.floor(resources.smallFish)}</span>
+      </div>
       <div className="flex justify-between text-sm">
         <span>💎 Void Pearls</span>
         <span>{Math.floor(resources.voidPearls)}</span>

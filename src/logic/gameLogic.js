@@ -103,3 +103,30 @@ export function tickPearls(prev) {
     },
   };
 }
+
+export function feedKrakenFish(prev) {
+  if (prev.resources.smallFish < 1) return prev;
+
+  const hungerGain = 25;
+  const newHunger = Math.min(prev.kraken.hunger + hungerGain, prev.kraken.maxHunger);
+  const didLevelUp = newHunger >= prev.kraken.maxHunger;
+
+  const pearlBonus = didLevelUp
+    ? (prev.upgrades.purchased.includes("pearlDiver") ? 6 : 3)
+    : 0;
+
+  return {
+    ...prev,
+    resources: {
+      ...prev.resources,
+      smallFish: prev.resources.smallFish - 1,
+      voidPearls: prev.resources.voidPearls + pearlBonus,
+    },
+    kraken: {
+      ...prev.kraken,
+      hunger: didLevelUp ? 0 : newHunger,
+      maxHunger: didLevelUp ? prev.kraken.maxHunger + 25 : prev.kraken.maxHunger,
+      level: didLevelUp ? prev.kraken.level + 1 : prev.kraken.level,
+    },
+  };
+}

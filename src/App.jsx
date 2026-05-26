@@ -1,12 +1,13 @@
+import { tick, tickPearls, buyBuilding, feedKraken, feedKrakenFish, manualCollect } from "./logic/gameLogic";
 import { useState, useEffect } from "react";
 import { INITIAL_STATE } from "./state/initialState";
-import { tick, tickPearls, buyBuilding, feedKraken, manualCollect } from "./logic/gameLogic";
 import { buyUpgrade } from "./logic/upgradeLogic";
 import HungerBar from "./components/HungerBar";
 import Resources from "./components/Resources";
 import Buildings from "./components/Buildings";
 import ActionButtons from "./components/ActionButtons";
 import UpgradeShop from "./components/UpgradeShop";
+
 
 const TICK_RATE = 1000;
 const PEARL_TICK_RATE = 45000;
@@ -69,7 +70,9 @@ export default function App() {
       <ActionButtons
         onCollect={() => setState((prev) => manualCollect(prev))}
         onFeed={() => setState((prev) => feedKraken(prev))}
+        onFeedFish={() => setState((prev) => feedKrakenFish(prev))}
         krillCount={resources.krill}
+        fishCount={resources.smallFish}
       />
 
       {/* Main layout */}
@@ -79,6 +82,7 @@ export default function App() {
           resources={resources}
           buildings={buildings}
           onBuy={(key) => setState((prev) => buyBuilding(prev, key))}
+          purchased={upgrades.purchased}
         />
         <UpgradeShop
           voidPearls={resources.voidPearls}

@@ -1,11 +1,16 @@
 import { BUILDINGS } from "../constants/buildings";
 import { getBuildingCost, canAffordResources } from "../logic/gameLogic";
 
-export default function Buildings({ resources, buildings, onBuy }) {
+export default function Buildings({ resources, buildings, onBuy, purchased }) {
   return (
     <div className="bg-slate-800 rounded-xl p-4">
       <h2 className="text-cyan-400 font-bold mb-3">Buildings</h2>
       {Object.entries(BUILDINGS).map(([key, building]) => {
+        // Hide buildings that require an upgrade until it's purchased
+        if (building.requiresUpgrade && !purchased.includes(building.requiresUpgrade)) {
+          return null;
+        }
+
         const cost = getBuildingCost(key, buildings[key]);
         const affordable = canAffordResources(resources, cost);
         return (
