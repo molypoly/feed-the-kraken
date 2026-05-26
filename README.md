@@ -1,16 +1,34 @@
-# React + Vite
+# 🦑 Feed the Kraken
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An incremental/idle browser game built with React + Vite + Tailwind CSS.
 
-Currently, two official plugins are available:
+## Concept
+You manage a deep sea food chain, feeding the ancient Kraken before it starves. 
+Build up a production chain from plankton to krill, earn Void Pearls, and unlock 
+upgrades to keep the Kraken fed as its hunger grows with each level.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Game Loop
+- Click to collect plankton manually
+- Buy buildings to automate production
+- Convert plankton → krill via Krill Clusters
+- Feed krill to the Kraken to fill its hunger bar
+- Don't let hunger hit 0 or it's game over
+- Level up the Kraken to increase the challenge
+- Earn Void Pearls to unlock Baits and Boosts
 
-## React Compiler
+## Tech Stack
+- React 19
+- Vite 8
+- Tailwind CSS v4
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Running Locally
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Planned Features
+- Small fish resource tier
+- More bait unlocks and boost upgrades
+- Save/load via localStorage
+- Godot port for visual layer

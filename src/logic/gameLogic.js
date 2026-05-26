@@ -1,0 +1,105 @@
+import { BUILDINGS } from "../constants/buildings";
+
+export function tick(prev) {
+  const newResources = { ...prev.resources };
+
+  // Production from buildings
+  Object.entries(prev.buildings).forEach(([key, count]) => {
+    if (count === 0) return;
+    const prod = BUILDINGS[key].production;
+    Object.entries(prod).forEach(([resource, amount]) => {
+      let finalAmount = amount;
+
+      // Apply tidal surge boost to plankton blooms
+      if (key === "planktonBloom" && resource === "plankton" && prev.upgrades.purchased.includes("tidalSurge")) {
+        finalAmount *= 2;
+      }
+
+      newResources[resource] = (newResources[resource] ?? 0) + finalAmount * count;
+    });
+  });
+
+  // Hunger decay
+  const newKraken = {
+    ...prev.kraken,
+    hunger: Math.max(0, prev.kraken.hunger - 0.5),
+  };
+
+  return { ...prev, resources: newResources, kraken: newKraken };
+}
+
+export function buyBuilding(prev, key) {
+  const cost = getBuildingCost(key, prev.buildings[key]);
+  if (!canAffordResources(prev.resources, cost)) return prev;
+
+  const newResources = { ...prev.resources };
+  Object.entries(cost).forEach(([r, amt]) => {
+    newResources[r] -= amt;
+  });
+
+  return {
+    ...prev,
+    resources: newResources,
+    buildings: { ...prev.buildings, [key]: prev.buildings[key] + 1 },
+  };
+}
+
+export function feedKraken(prev) {
+  if (prev.resources.krill < 1) return prev;
+
+  const hungerGain = prev.upgrades.purchased.includes("feedingFrenzy") ? 10 : 5;
+
+  const newHunger = Math.min(prev.kraken.hunger + hungerGain, prev.kraken.maxHunger);
+  const didLevelUp = newHunger >= prev.kraken.maxHunger;
+
+  const pearlBonus = didLevelUp
+    ? (prev.upgrades.purchased.includes("pearlDiver") ? 6 : 3)
+    : 0;
+
+  return {
+    ...prev,
+    resources: {
+      ...prev.resources,
+      krill: prev.resources.krill - 1,
+      voidPearls: prev.resources.voidPearls + pearlBonus,
+    },
+    kraken: {
+      ...prev.kraken,
+      hunger: didLevelUp ? 0 : newHunger,
+      maxHunger: didLevelUp ? prev.kraken.maxHunger + 25 : prev.kraken.maxHunger,
+      level: didLevelUp ? prev.kraken.level + 1 : prev.kraken.level,
+    },
+  };
+}
+
+export function manualCollect(prev) {
+  return {
+    ...prev,
+    resources: {
+      ...prev.resources,
+      plankton: prev.resources.plankton + 1,
+    },
+  };
+}
+
+export function getBuildingCost(key, owned) {
+  const base = BUILDINGS[key].baseCost;
+  return Object.fromEntries(
+    Object.entries(base).map(([r, amt]) => [r, Math.floor(amt * Math.pow(1.15, owned))])
+  );
+}
+
+export function canAffordResources(resources, cost) {
+  return Object.entries(cost).every(([r, amt]) => (resources[r] ?? 0) >= amt);
+}
+
+export function tickPearls(prev) {
+  const rate = prev.upgrades.purchased.includes("pearlDiver") ? 2 : 1;
+  return {
+    ...prev,
+    resources: {
+      ...prev.resources,
+      voidPearls: prev.resources.voidPearls + rate,
+    },
+  };
+}
