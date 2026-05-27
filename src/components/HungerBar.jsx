@@ -1,3 +1,4 @@
+// HungerBar.jsx
 export default function HungerBar({ kraken }) {
   const hungerPct = (kraken.hunger / kraken.maxHunger) * 100;
   const isLow = hungerPct < 25;

@@ -1,3 +1,4 @@
+// initialState.js
 export const INITIAL_STATE = {
   resources: {
     plankton: 0,

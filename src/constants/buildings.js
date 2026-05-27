@@ -1,3 +1,4 @@
+// buildings.js
 export const BUILDINGS = {
   planktonBloom: {
     name: "Plankton Bloom",
@@ -9,7 +10,7 @@ export const BUILDINGS = {
     name: "Krill Cluster",
     description: "Converts plankton into krill.",
     baseCost: { plankton: 50 },
-    production: { krill: 1, plankton: -5 },
+    production: {},
   },
   anglerTrap: {
     name: "Angler Trap",

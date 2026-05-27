@@ -1,3 +1,4 @@
+// App.jsx
 import { tick, tickPearls, buyBuilding, feedKraken, feedKrakenFish, manualCollect } from "./logic/gameLogic";
 import { useState, useEffect } from "react";
 import { INITIAL_STATE } from "./state/initialState";
@@ -16,7 +17,7 @@ const PEARL_TICK_RATE = 90000;
 export default function App() {
   const [state, setState] = useState(() => loadGame() || INITIAL_STATE);
   const [gameOver, setGameOver] = useState(false);
-  const [resetKey, setResetKey] = useState(0); // Used to reset intervals in child components
+  const [, setResetKey] = useState(0); // Used to reset intervals in child components
 
   // Main game tick
   useEffect(() => {
@@ -42,13 +43,14 @@ export default function App() {
         const newResources = { ...prev.resources };
         const count = prev.buildings.krillCluster;
         const available = newResources.plankton ?? 0;
-        const affordableCount = Math.min(count, Math.floor(available / 5));
-        if (affordableCount === 0) return prev;
-        newResources.plankton = Math.max(0, newResources.plankton - 5 * affordableCount);
+        const affordableCount = Math.min(count, Math.floor(available / 3));
+        const krillRate = count / 5;
+        if (affordableCount === 0) return { ...prev, productionRates: { ...prev.productionRates, krill: krillRate } };
+        newResources.plankton = Math.max(0, newResources.plankton - 3 * affordableCount);
         newResources.krill = (newResources.krill ?? 0) + affordableCount;
-        return { ...prev, resources: newResources };
+        return { ...prev, resources: newResources, productionRates: { ...prev.productionRates, krill: krillRate } };
       });
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [gameOver]);
 

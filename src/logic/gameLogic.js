@@ -1,3 +1,4 @@
+// gameLogic.js
 import { BUILDINGS } from "../constants/buildings";
 
 export function tick(prev) {
@@ -118,7 +119,7 @@ export function manualCollect(prev) {
 export function getBuildingCost(key, owned) {
   const base = BUILDINGS[key].baseCost;
   return Object.fromEntries(
-    Object.entries(base).map(([r, amt]) => [r, Math.floor(amt * Math.pow(1.15, owned))])
+    Object.entries(base).map(([r, amt]) => [r, Math.floor(amt * Math.pow(1.5, owned))])
   );
 }
 
